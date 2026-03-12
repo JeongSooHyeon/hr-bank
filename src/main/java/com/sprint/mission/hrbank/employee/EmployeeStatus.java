@@ -1,0 +1,20 @@
+package com.sprint.mission.hrbank.employee;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public enum EmployeeStatus {
+    WORKING("재직중"),
+    ON_LEAVE("휴직중"),
+    RESIGNED("퇴사");
+
+    @Getter
+    private final String status;
+
+    public String getCode(){
+        return name();
+    }
+
+
+}
