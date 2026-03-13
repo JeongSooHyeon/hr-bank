@@ -1,18 +1,20 @@
 package com.sprint.mission.hrbank.domain.employee;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Getter
+@RequiredArgsConstructor
 public enum EmployeeStatus {
-    ACTIVE("재직중"),
-    ON_LEAVE("휴직중"),
-    RESIGNED("퇴사");
+  ACTIVE("재직중"),
+  ON_LEAVE("휴직중"),
+  RESIGNED("퇴사");
 
-    final private String name;
+  @Getter
+  private final String status;
 
-    EmployeeStatus(String name) {
-        this.name = name;
-    }
+  public String getCode() {
+    return name();
+  }
 
 
 }
