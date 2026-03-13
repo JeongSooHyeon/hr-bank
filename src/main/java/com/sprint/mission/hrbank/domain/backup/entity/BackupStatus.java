@@ -1,4 +1,4 @@
-package com.sprint.mission.hrbank.domain.backup;
+package com.sprint.mission.hrbank.domain.backup.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
