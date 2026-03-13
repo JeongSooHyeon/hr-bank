@@ -8,8 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,25 +36,24 @@ public class Employee extends BaseEntity {
     private String position;
 
     @Column(nullable = false)
-    private Instant hiredDate;
+    private LocalDate hireDate;
 
     @Column(nullable = false)
     private EmployeeStatus status;
 
     // 추후 프로필 이미지 엔티티와 연동할 예정
     @OneToMany(mappedBy = "employee")
-    private File profileImage; // 일단 바이너리 컨텐트라는 이름으로 두었음...
+    private File profileImage;
 
-    Employee(String name, String email, Department department, String position, Instant hiredDate,
+    Employee(String name, String email, Department department, String position, LocalDate hiredDate,
         File profileImage) {
         this.name = name;
         this.email = email;
         this.employeeNumber =
-            "EMP-" + LocalDateTime.ofInstant(hiredDate, ZoneId.systemDefault()).getYear()
-                + Instant.now().toEpochMilli();
+            "EMP-" + hiredDate + Instant.now().toEpochMilli(); // 자연생성 규칙 : 입사일-생성한시간정보
         this.department = department;
         this.position = position;
-        this.hiredDate = hiredDate;
+        this.hireDate = hiredDate;
         this.status = EmployeeStatus.ACTIVE;
         this.profileImage = profileImage;
 

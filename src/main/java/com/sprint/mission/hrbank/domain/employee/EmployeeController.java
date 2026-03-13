@@ -3,8 +3,7 @@ package com.sprint.mission.hrbank.domain.employee;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
-import java.time.Instant;
-import java.util.Objects;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,41 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(value = "api/employees")
+@RequestMapping(value = "/api/employees")
 @RequiredArgsConstructor
 public class EmployeeController {
 
     private final EmployeeService employeeService; // 추후 구현 예정
 
     @GetMapping()
-    public ResponseEntity<CursorPageResponseEmployeeDto> getEmployees(
-        @RequestParam String nameOrEmail, // 직원 이름 또는 이메일
-        @RequestParam String employeeNumber, // 사원 번호
-        @RequestParam String departmentName, // 부서 이름
-        @RequestParam String position, // 직함
-        @RequestParam Instant hireDateFrom, // 입사일 시작
-        @RequestParam Instant hireDateTo, // 입사일 종료
-        @RequestParam EmployeeStatus status, // 상태 (재직중, 휴직중, 퇴사)
-        @RequestParam Long idAfter, // 이전 페이지 마지막 요소 ID
-        @RequestParam String cursor, // 커서 (다음 페이지 시작점)
-        @RequestParam(defaultValue = "10") int size, // 페이지 크기 (기본값: 10)
-        @RequestParam(defaultValue = "name") String sortField, // 정렬 필드 (기본값: name)
-        @RequestParam(defaultValue = "asf") String sortDirection // 정렬 방향 (기본값: 오름차)
-    ) {
-        CursorPageResponseEmployeeDto response = employeeService.getEmployees(
-            nameOrEmail,
-            departmentName,
-            position,
-            employeeNumber,
-            hireDateFrom,
-            hireDateTo,
-            status,
-            cursor,
-            idAfter,
-            size,
-            sortField,
-            sortDirection
-        );
+    public ResponseEntity<CursorPageResponseEmployeeDto> getEmployees(EmployeeSearchRequest req) {
+        CursorPageResponseEmployeeDto response = employeeService.getEmployees(req);
 
         return ResponseEntity.ok(response);
     }
