@@ -1,15 +1,13 @@
 package com.sprint.mission.hrbank.domain.employee;
 
-import com.sprint.mission.hrbank.baseentity.BaseEntity;
+import com.sprint.mission.hrbank.domain.baseentity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.OneToMany;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -42,17 +40,9 @@ public class Employee extends BaseEntity {
     @Column(nullable = false)
     private EmployeeStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "files_id")
-    private BinaryContent profileImage;
+  // 추후 프로필 이미지 엔티티와 연동할 예정
+  @OneToMany(mappedBy = "employee")
+  private BinaryContent profileImage;
 
-    @PrePersist
-    void createEmployeeNumber() {
-        Instant now = Instant.now();
-        int year = LocalDateTime.ofInstant(hiredDate, ZoneId.systemDefault()).getYear();
-        long timestamp = now.toEpochMilli();
-
-        this.employeeNumber = "EMP-" + year + "-" + timestamp;
-    }
 
 }
