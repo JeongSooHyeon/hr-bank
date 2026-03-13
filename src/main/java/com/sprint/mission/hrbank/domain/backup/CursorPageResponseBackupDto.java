@@ -1,4 +1,4 @@
-package com.sprint.mission.hrbank.domain.backup.dto;
+package com.sprint.mission.hrbank.domain.backup;
 
 import java.util.List;
 

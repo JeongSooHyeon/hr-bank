@@ -1,4 +1,4 @@
-package com.sprint.mission.hrbank.domain.backup.entity;
+package com.sprint.mission.hrbank.domain.backup;
 
 import com.sprint.mission.hrbank.domain.baseentity.BaseEntity;
 import jakarta.persistence.Column;

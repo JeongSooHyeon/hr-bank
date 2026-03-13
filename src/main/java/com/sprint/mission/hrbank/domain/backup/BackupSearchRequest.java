@@ -1,6 +1,5 @@
-package com.sprint.mission.hrbank.domain.backup.dto;
+package com.sprint.mission.hrbank.domain.backup;
 
-import com.sprint.mission.hrbank.domain.backup.entity.BackupStatus;
 import java.time.Instant;
 
 // 백업 목록 조회용 dto

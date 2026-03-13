@@ -1,7 +1,5 @@
-package com.sprint.mission.hrbank.domain.backup.repository;
+package com.sprint.mission.hrbank.domain.backup;
 
-import com.sprint.mission.hrbank.domain.backup.entity.Backup;
-import com.sprint.mission.hrbank.domain.backup.entity.BackupStatus;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
