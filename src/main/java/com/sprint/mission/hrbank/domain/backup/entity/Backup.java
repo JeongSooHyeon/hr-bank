@@ -5,13 +5,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,30 +30,29 @@ public class Backup extends BaseEntity {
   @Column(nullable = false, length = 20)
   private BackupStatus status;
 
-  @ManyToOne(fetch = FetchType.LAZY) // 추후 파일 엔티티 연동 시 추가
-  @JoinColumn(name = "backup_file_id")
-  private File backupFile;
+//  @ManyToOne(fetch = FetchType.LAZY) // 추후 파일 엔티티 연동 시 추가
+//  @JoinColumn(name = "backup_file_id")
+//  private File backupFile;
 
   @Column(columnDefinition = "TEXT")
   private String errorSummary;
 
-  @Builder
   public Backup(String worker, Instant startedAt, BackupStatus status) {
     this.worker = worker;
     this.startedAt = startedAt;
     this.status = status;
   }
 
-  public void markAsCompleted(File backupFile) { // 추후 파일 엔티티 연동 시 추가
-    this.status = BackupStatus.COMPLETED;
-    this.endedAt = Instant.now();
-    this.backupFile = backupFile;
-  }
-
-  public void markAsFailed(File errorLogFile, String errorSummary) { // 추후 파일 엔티티 연동 시 추가
-    this.status = BackupStatus.FAILED;
-    this.endedAt = Instant.now();
-    this.backupFile = errorLogFile;
-    this.errorSummary = errorSummary;
-  }
+//  public void markAsCompleted(File backupFile) { // 추후 파일 엔티티 연동 시 추가
+//    this.status = BackupStatus.COMPLETED;
+//    this.endedAt = Instant.now();
+//    this.backupFile = backupFile;
+//  }
+//
+//  public void markAsFailed(File errorLogFile, String errorSummary) { // 추후 파일 엔티티 연동 시 추가
+//    this.status = BackupStatus.FAILED;
+//    this.endedAt = Instant.now();
+//    this.backupFile = errorLogFile;
+//    this.errorSummary = errorSummary;
+//  }
 }
