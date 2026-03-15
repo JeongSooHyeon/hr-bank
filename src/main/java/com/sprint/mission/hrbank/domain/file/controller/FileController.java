@@ -1,8 +1,11 @@
 package com.sprint.mission.hrbank.domain.file.controller;
 
+import com.sprint.mission.hrbank.domain.file.entity.StoredFile;
 import com.sprint.mission.hrbank.domain.file.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +25,18 @@ public class FileController {
   // 500 - 서버 오류
   @GetMapping("/{id}/download")
   public ResponseEntity<Resource> download(@PathVariable("id") Long id) {
-    return null; // TODO: 추후 구현
+    StoredFile metaData = fileService.getById(id); // 파일 메타데이터 조회
+    Resource resource = fileService.getResource(id); // 실제 파일 스트림을 Resource 형태로 조회
+
+    return ResponseEntity.ok()
+        .contentType(MediaType.parseMediaType(metaData.getContentType()))
+        // DB에 저장된 MIME 타입을 응답 Content-Type으로 설정
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION, // 응답 헤더의 이름을 Content-Disposition으로 지정
+            "attachment; filename=\"" + metaData.getOriginalName() + "\""
+        )
+        // attachment: 브라우저가 콘텐츠를 파일로 다운로드하도록 강제
+        // filename = 저장될 기본 파일명을 지정
+        .body(resource); // 응답 본문에 실제 파일 내용을 담아 전송
   }
 }
