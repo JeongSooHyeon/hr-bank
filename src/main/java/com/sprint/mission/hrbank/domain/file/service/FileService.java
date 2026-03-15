@@ -47,11 +47,13 @@ public class FileService {
     }
 
     String originalFilename = multipartFile.getOriginalFilename();
-    if (originalFilename != null) {
-      // .getFileName() : 전체 경로에서 파일 이름(확장자 포함)만을 추출
-      originalFilename = Paths.get(originalFilename).getFileName().toString();
+    if (originalFilename == null || originalFilename.isBlank()) { // 내용 없는 이름 필터링
+      throw new IllegalArgumentException("유효한 파일명이 없습니다");
     }
-
+    originalFilename = Paths.get(originalFilename).getFileName().toString();
+    if (originalFilename.isBlank()) { // / . .. 케이스 필티링
+      throw new IllegalArgumentException("유효한 파일명이 없습니다");
+    }
     // 파일 이름 고유성 확보
     String storedName = UUID.randomUUID() + "-" + originalFilename;
     Path targetPath = rootPath.resolve("files").resolve(storedName);
@@ -70,22 +72,38 @@ public class FileService {
     }
 
     StoredFile file = StoredFile.create(
-        multipartFile.getOriginalFilename(),
+        originalFilename,
         storedName,
         multipartFile.getContentType(),
         multipartFile.getSize(),
         targetPath.toString()
     );
 
-    return fileRepository.save(file);
+    try {
+      return fileRepository.save(file);
+    } catch (RuntimeException e) { // 만약 메타데이터 정보 저장 중 예외 발생시
+      try {
+        Files.deleteIfExists(targetPath); // 데이터 일치를 위해 실제 파일 삭제 시도
+      } catch (IOException cleanupEx) { //
+        e.addSuppressed(cleanupEx); // 추가로 발생한 예외들 하나의 예외 객체 안에 묶어서 관리
+      }
+      throw e;
+    }
   }
 
   // 백업 파일 저장 -> 로그 + CSV
   // TODO: CSV로 저장? -> 프로젝트 분석 필요
   @Transactional
   public StoredFile saveBackupData(String filename, String content, String contentType) {
+    if (filename == null || filename.isBlank()) {
+      throw new IllegalArgumentException("유효한 파일명이 없습니다");
+    }
     // 전체 경로에서 파일 이름(확장자 포함)만을 추출 - 파일명에서 경로 구분자 제거
     String sanitizedFilename = Paths.get(filename).getFileName().toString();
+    if (sanitizedFilename.isBlank()) {
+      throw new IllegalArgumentException("유효한 파일명이 없습니다");
+    }
+    
     String storedName = UUID.randomUUID() + "-" + sanitizedFilename;
     Path targetPath = rootPath.resolve("files").resolve(storedName); // 파일 경로 생성
 
@@ -116,13 +134,23 @@ public class FileService {
     }
 
     StoredFile file = StoredFile.create(
-        filename,
+        sanitizedFilename,
         storedName,
         contentType,
         fileSize,
         targetPath.toString()
     );
-    return fileRepository.save(file);
+
+    try {
+      return fileRepository.save(file);
+    } catch (RuntimeException e) {
+      try {
+        Files.deleteIfExists(targetPath);
+      } catch (IOException cleanupEx) {
+        e.addSuppressed(cleanupEx);
+      }
+      throw e;
+    }
   }
 
   // UPDATE
