@@ -45,19 +45,34 @@ public class DepartmentService {
 
   @Transactional(readOnly = true)
   public CursorPageResponseDepartmentDto findAllDepartment(DepartmentSearchRequest request) {
+    if (request.size() < 1
+        || (request.cursor() != null && request.idAfter() == null)
+        || (request.cursor() == null && request.idAfter() != null)) {
+      throw new RuntimeException("잘못된 요청입니다");
+    }
+
+    // 커서기능을 하기위한 요청 크기 + 1
     int sizeAddOne = request.size() + 1;
+
+    // 검색 키워드
     String keyword = request.nameOrDescription();
+    // 정렬 기준
     String sortField = request.sortField();
+    // 정렬기준이 establishedDate면 LocalDate 타입으로 변환
     LocalDate cursorDate = Optional.ofNullable(request.cursor())
         .filter(s -> !s.isBlank() && sortField.equals("establishedDate"))
         .map(LocalDate::parse)
         .orElse(null);
 
+    // Pageable 생성을 위한 Sort 생성
     Sort sort = "ASC".equalsIgnoreCase(request.sortDirection())
         ? Sort.by(sortField).ascending()
         : Sort.by(sortField).descending();
+    // Pageable 생성
     Pageable pageable = PageRequest.of(0, sizeAddOne, sort);
 
+    // 실행되는 함수? 1차: 정렬방향, 2차: 정렬필드에 맞춰서 repository 실행
+    // 결과값: (부서, 부서 인원수)
     List<Object[]> queryResults = switch (Sort.Direction.fromString(request.sortDirection())) {
       case ASC -> sortField.equals("establishedDate")
           ? departmentRepository.findByNameContainingOrDescriptionContainingOrderByEstablishedDateAsc(
@@ -70,26 +85,36 @@ public class DepartmentService {
           : departmentRepository.findByNameContainingOrDescriptionContainingOrderByNameDesc(
               keyword, request.cursor(), request.idAfter(), pageable);
     };
+
     int querySize = queryResults.size();
     boolean hasNext = querySize > request.size();
+
+    // ex) 요청크기: 10에 hasNext가 true면, 쿼리크기 11
+    // 요청크기 10의 마지막 리스트를 읽어야 하니까 get(9)이어야 함
     Object cursor = hasNext ? queryResults.get(request.size() - 1) : null;
     String nextCursor = null;
     Long nextIdAfter = null;
+
     if (hasNext && cursor instanceof Object[] c) {
       Object entity = c[0];
+      // 쿼리+1 결과물 -> 쿼리
       queryResults = queryResults.subList(0, request.size());
       if (entity instanceof Department d) {
+        // 정렬 기준에 따라 반환 마지막값을 커서값으로 동적 바인딩
         nextCursor = sortField.equals("establishedDate")
             ? d.getEstablishedDate().toString()
             : d.getName();
+        // 커서로 저장한 객체 ID 동적 바인딩
         nextIdAfter = d.getId();
       }
     }
 
+    // Object: (부서, 부서 인원수)가 Dto로 변환
     List<DepartmentDto> departmentDto = queryResults.stream()
         .map(r -> departmentMapper.toDto((Department) r[0], (long) r[1]))
         .toList();
 
+    // 검색 키워드 기준 총 부서수
     long totalElements = keyword == null || keyword.isBlank()
         ? departmentRepository.count()
         : departmentRepository.countByNameOrDescriptionContaining(keyword);
