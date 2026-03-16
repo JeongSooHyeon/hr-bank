@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,7 +26,7 @@ public class DashBoardController {
       @ApiResponse(responseCode = "500", description = "서버 오류")
   })
   @GetMapping("/api/change-logs/count")
-  public ResponseEntity<Long> getChangeLogsCount(ChangeLogCountRequest request) {
+  public ResponseEntity<Long> getChangeLogsCount(@ModelAttribute ChangeLogCountRequest request) {
     long count = dashboardService.getChangeLogsCount(request);
     return ResponseEntity.ok(count);
   }
