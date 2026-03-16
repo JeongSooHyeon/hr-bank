@@ -1,5 +1,10 @@
-package com.sprint.mission.hrbank.domain.changelog;
+package com.sprint.mission.hrbank.domain.changelog.controller;
 
+import com.sprint.mission.hrbank.domain.changelog.dto.ChangeLogCountRequest;
+import com.sprint.mission.hrbank.domain.changelog.dto.ChangeLogDetailDto;
+import com.sprint.mission.hrbank.domain.changelog.dto.ChangeLogSearchRequest;
+import com.sprint.mission.hrbank.domain.changelog.dto.CursorPageResponseChangeLogDto;
+import com.sprint.mission.hrbank.domain.changelog.service.ChangeLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
