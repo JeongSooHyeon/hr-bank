@@ -30,5 +30,12 @@ public class ChangeLogController {
     return ResponseEntity.ok(changeLogService.getChangeLogDetail(id));
   }
 
-  
+  // 수정 이력 건수 조회
+  @GetMapping(value = "/count")
+  public ResponseEntity<Long> getChangeLogCount(
+      @ModelAttribute ChangeLogCountRequest request) {
+    return ResponseEntity.ok(
+        changeLogService.getChangeLogCount(request.fromDate(), request.toDate()));
+  }
+
 }

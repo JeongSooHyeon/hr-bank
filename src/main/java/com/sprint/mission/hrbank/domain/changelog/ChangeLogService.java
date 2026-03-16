@@ -151,4 +151,8 @@ public class ChangeLogService {
     return changeLogMapper.toDetailDto(detailLog);
   }
 
+  // 수정 이력 건수 조회
+  public Long getChangeLogCount(Instant fromDate, Instant toDate) {
+    return changeLogRepository.countChangeLogs(fromDate, toDate);
+  }
 }
