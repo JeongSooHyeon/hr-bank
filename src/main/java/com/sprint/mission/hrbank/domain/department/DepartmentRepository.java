@@ -19,7 +19,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
   @Query("SELECT d, COUNT(e) FROM Department d "
       + "LEFT JOIN Employee e ON d.id = e.department.id "
-      + "WHERE (d.name like %:keyword% OR d.description like %:keyword%) "
+      + "WHERE (:keyword IS NULL OR :keyword = '' OR d.name like %:keyword% OR d.description like %:keyword%) "
       + "AND (:cursor IS NULL OR "
       + " (d.name > :cursor OR "
       + " (d.name = :cursor AND (:idAfter IS NULL OR d.id > :idAfter)))) "
@@ -33,7 +33,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
   @Query("SELECT d, COUNT(e) FROM Department d "
       + "LEFT JOIN Employee e ON d.id = e.department.id "
-      + "WHERE (d.name like %:keyword% OR d.description like %:keyword%) "
+      + "WHERE (:keyword IS NULL OR :keyword = '' OR d.name like %:keyword% OR d.description like %:keyword%) "
       + "AND (:cursor IS NULL OR "
       + " (d.name < :cursor OR "
       + " (d.name = :cursor AND (:idAfter IS NULL OR d.id < :idAfter)))) "
@@ -47,7 +47,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
   @Query("SELECT d, COUNT(e) FROM Department d "
       + "LEFT JOIN Employee e ON d.id = e.department.id "
-      + "WHERE (d.name like %:keyword% OR d.description like %:keyword%) "
+      + "WHERE (:keyword IS NULL OR :keyword = '' OR d.name like %:keyword% OR d.description like %:keyword%) "
       + "AND (:cursor IS NULL OR "
       + " (d.establishedDate > :cursor OR "
       + " (d.establishedDate = :cursor AND (:idAfter IS NULL OR d.id > :idAfter)))) "
@@ -61,7 +61,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
   @Query("SELECT d, COUNT(e) FROM Department d "
       + "LEFT JOIN Employee e ON d.id = e.department.id "
-      + "WHERE (d.name like %:keyword% OR d.description like %:keyword%) "
+      + "WHERE (:keyword IS NULL OR :keyword = '' OR d.name like %:keyword% OR d.description like %:keyword%) "
       + "AND (:cursor IS NULL OR "
       + " (d.establishedDate < :cursor OR "
       + " (d.establishedDate = :cursor AND (:idAfter IS NULL OR d.id < :idAfter)))) "
@@ -72,4 +72,8 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
       @Param("cursor") LocalDate cursor,
       @Param("idAfter") Long idAfter,
       Pageable pageable);
+
+  @Query("SELECT COUNT(d) FROM Department d "
+      + "WHERE d.name like %:keyword% OR d.description like %:keyword%")
+  long countByNameOrDescriptionContaining(@Param("keyword") String keyword);
 }

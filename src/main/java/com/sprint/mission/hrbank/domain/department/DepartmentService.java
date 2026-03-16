@@ -46,6 +46,7 @@ public class DepartmentService {
   @Transactional(readOnly = true)
   public CursorPageResponseDepartmentDto findAllDepartment(DepartmentSearchRequest request) {
     int sizeAddOne = request.size() + 1;
+    String keyword = request.nameOrDescription();
     String sortField = request.sortField();
     LocalDate cursorDate = Optional.ofNullable(request.cursor())
         .filter(s -> !s.isBlank() && sortField.equals("establishedDate"))
@@ -60,14 +61,14 @@ public class DepartmentService {
     List<Object[]> queryResults = switch (Sort.Direction.fromString(request.sortDirection())) {
       case ASC -> sortField.equals("establishedDate")
           ? departmentRepository.findByNameContainingOrDescriptionContainingOrderByEstablishedDateAsc(
-          request.nameOrDescription(), cursorDate, request.idAfter(), pageable)
+          keyword, cursorDate, request.idAfter(), pageable)
           : departmentRepository.findByNameContainingOrDescriptionContainingOrderByNameAsc(
-              request.nameOrDescription(), request.cursor(), request.idAfter(), pageable);
+              keyword, request.cursor(), request.idAfter(), pageable);
       case DESC -> sortField.equals("establishedDate")
           ? departmentRepository.findByNameContainingOrDescriptionContainingOrderByEstablishedDateDesc(
-          request.nameOrDescription(), cursorDate, request.idAfter(), pageable)
+          keyword, cursorDate, request.idAfter(), pageable)
           : departmentRepository.findByNameContainingOrDescriptionContainingOrderByNameDesc(
-              request.nameOrDescription(), request.cursor(), request.idAfter(), pageable);
+              keyword, request.cursor(), request.idAfter(), pageable);
     };
     int querySize = queryResults.size();
     boolean hasNext = querySize > request.size();
@@ -88,7 +89,10 @@ public class DepartmentService {
     List<DepartmentDto> departmentDto = queryResults.stream()
         .map(r -> departmentMapper.toDto((Department) r[0], (long) r[1]))
         .toList();
-    long totalElements = departmentRepository.count();
+
+    long totalElements = keyword == null || keyword.isBlank()
+        ? departmentRepository.count()
+        : departmentRepository.countByNameOrDescriptionContaining(keyword);
 
     return new CursorPageResponseDepartmentDto(
         departmentDto,
