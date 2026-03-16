@@ -6,6 +6,7 @@ import com.sprint.mission.hrbank.domain.backup.BackupStatus;
 import com.sprint.mission.hrbank.domain.backup.dto.BackupDto;
 import com.sprint.mission.hrbank.domain.changelog.ChangeLogCountRequest;
 import com.sprint.mission.hrbank.domain.changelog.ChangeLogRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class DashBoardService {
+public class DashboardService {
 
   private final ChangeLogRepository changeLogRepository;
   private final BackupRepository backupRepository;
@@ -23,10 +24,9 @@ public class DashBoardService {
     return changeLogRepository.countChangeLogs(request.fromDate(), request.toDate());
   }
 
-  public BackupDto getLatestBackup(BackupStatus status) {
+  public Optional<BackupDto> getLatestBackup(BackupStatus status) {
     BackupStatus searchStatus = (status == null) ? BackupStatus.COMPLETED : status;
     return backupRepository.findFirstByStatusOrderByEndedAtDesc(searchStatus)
-        .map(backupMapper::toDto)
-        .orElse(null);
+        .map(backupMapper::toDto);
   }
 }

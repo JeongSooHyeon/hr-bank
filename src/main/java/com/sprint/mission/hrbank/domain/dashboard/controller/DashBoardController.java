@@ -3,7 +3,7 @@ package com.sprint.mission.hrbank.domain.dashboard.controller;
 import com.sprint.mission.hrbank.domain.backup.BackupStatus;
 import com.sprint.mission.hrbank.domain.backup.dto.BackupDto;
 import com.sprint.mission.hrbank.domain.changelog.ChangeLogCountRequest;
-import com.sprint.mission.hrbank.domain.dashboard.service.DashBoardService;
+import com.sprint.mission.hrbank.domain.dashboard.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class DashBoardController {
+public class DashboardController {
 
-  private final DashBoardService dashboardService;
+  private final DashboardService dashboardService;
 
   @Operation(summary = "수정 이력 건수 조회", description = "직원 정보 수정 이력 건수를 조회합니다. 파라미터를 제공하지 않으면 최근 일주일 데이터를 반환합니다.")
   @ApiResponses(value = {
@@ -46,7 +46,8 @@ public class DashBoardController {
   public ResponseEntity<BackupDto> getLatestBackup(
       @Parameter(description = "백업 상태 (COMPLETED, FAILED, IN_PROGRESS, 기본값: COMPLETED)")
       @RequestParam(required = false) BackupStatus status) {
-    BackupDto latestBackup = dashboardService.getLatestBackup(status);
-    return ResponseEntity.ok(latestBackup);
+    return dashboardService.getLatestBackup(status)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.ok().build());
   }
 }
