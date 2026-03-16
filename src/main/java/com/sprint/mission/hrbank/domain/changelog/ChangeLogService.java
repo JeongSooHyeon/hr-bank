@@ -10,7 +10,6 @@ public class ChangeLogService {
 
   private final ChangeLogRepository changeLogRepository;
 
-
   // 직원 추가/수정/삭제 시 호출
   public void createChangeLog(Employee before, Employee after, ChangeLogType type, String ipAddress,
       String memo) {
@@ -24,9 +23,15 @@ public class ChangeLogService {
     }
 
     // ChangeLog 생성
-    ChangeLog changeLog = new ChangeLog(target.getId(), type, target.getEmployeeNumber(), memo,
-        ipAddress,
-        target.getName(), profileImageId);
+    ChangeLog changeLog = ChangeLog.builder()
+        .employeeId(target.getId())
+        .type(type)
+        .employeeNumberSnapshot(target.getEmployeeNumber())
+        .memo(memo)
+        .ipAddress(ipAddress)
+        .employeeNameSnapshot(target.getName())
+        .profileImageIdSnapshot(profileImageId)
+        .build();
 
     // 수정일 때 diff 저장
     if (type == ChangeLogType.UPDATED && before != null && after != null) {
@@ -50,7 +55,8 @@ public class ChangeLogService {
     }
 
     // 부서 수정 시
-    if (!before.getDepartment().getId().equals(after.getDepartment().getId())) {
+    if (before.getDepartment() != null && after.getDepartment() != null
+        && !before.getDepartment().getId().equals(after.getDepartment().getId())) {
       changeLog.addDiff("department", before.getDepartment().getName(),
           after.getDepartment().getName());
     }
@@ -61,9 +67,9 @@ public class ChangeLogService {
     }
 
     // 입사일 수정 시
-    if (!before.getHiredDate().equals(after.getHiredDate())) {
-      changeLog.addDiff("hiredDate", before.getHiredDate().toString(),
-          after.getHiredDate().toString());
+    if (!before.getHireDate().equals(after.getHireDate())) {
+      changeLog.addDiff("hiredDate", before.getHireDate().toString(),
+          after.getHireDate().toString());
     }
 
     // 상태 변경 시
