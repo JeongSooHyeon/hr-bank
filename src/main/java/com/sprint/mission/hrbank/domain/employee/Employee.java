@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.Instant;
 import java.time.LocalDate;
-import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -58,8 +57,6 @@ public class Employee extends BaseEntity {
     this.hireDate = hiredDate;
     this.status = EmployeeStatus.ACTIVE;
     this.profileImage = profileImage;
-
-
   }
 
 

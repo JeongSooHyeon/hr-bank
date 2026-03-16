@@ -65,4 +65,10 @@ public class EmployeeService {
     Employee saved = employeeRepository.save(employee); // 레포지토리 인터페이스를 통해 영속화
     return employeeMapper.entityToDto(saved); // 그 후 employeeDto 형식으로 리턴.ㅎ
   }
+
+  public void delete(Long id) {
+    Objects.requireNonNull(id, "유효하지 않은 id입니다!");
+    employeeRepository.deleteById(id);
+  }
+
 }

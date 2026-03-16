@@ -6,7 +6,9 @@ import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +33,12 @@ public class EmployeeController {
   @PostMapping
   public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeCreateRequest req,
       @RequestPart MultipartFile profile) {
-    return employeeService.create(req, profile); // 추후 구현 예정
+    return ResponseEntity.ok(employeeService.create(req, profile)); // 추후 구현 예정
   }
 
-
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+    employeeService.delete(id);
+    return ResponseEntity.noContent().build();
+  }
 }
