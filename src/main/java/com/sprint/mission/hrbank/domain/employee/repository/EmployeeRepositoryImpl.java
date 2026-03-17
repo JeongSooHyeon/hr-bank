@@ -92,10 +92,15 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
 
   @Override
   public long countEmployees(EmployeeCountRequest req) {
-    // status 파라미터가 있으면 해당 상태로 필터링, 없으면 기본적으로 퇴사자 제외(ACTIVE, ON_LEAVE)
-    BooleanExpression statusCondition = req.status() != null 
-        ? employee.status.eq(req.status()) 
-        : statusNotResigned();
+    BooleanExpression statusCondition;
+
+    if (req.status() != null) {
+      // 특정 상태가 요청된 경우 해당 상태로 필터링
+      statusCondition = employee.status.eq(req.status());
+    } else {
+      // 상태 파라미터가 없는 경우, 명시적으로 재직(ACTIVE) 및 휴직(ON_LEAVE) 직원만 포함 (퇴사자 제외)
+      statusCondition = employee.status.in(EmployeeStatus.ACTIVE, EmployeeStatus.ON_LEAVE);
+    }
 
     Long count = queryFactory
         .select(employee.count())
@@ -148,11 +153,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   private BooleanExpression statusEq(EmployeeStatus status) {
     return status != null ? employee.status.eq(status) : null;
   }
-
-  private BooleanExpression statusNotResigned() {
-    return employee.status.ne(EmployeeStatus.RESIGNED);
-  }
-
+  
   private BooleanExpression cursorCondition(String cursor) {
     if (!StringUtils.hasText(cursor)) {
       return null;
