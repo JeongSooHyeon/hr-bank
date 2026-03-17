@@ -1,5 +1,6 @@
 package com.sprint.mission.hrbank.domain.backup;
 
+import com.sprint.mission.hrbank.domain.backup.dto.BackupDto;
 import com.sprint.mission.hrbank.domain.changelog.repository.ChangeLogRepository;
 import com.sprint.mission.hrbank.domain.file.entity.StoredFile;
 import java.time.Instant;
@@ -17,6 +18,7 @@ public class BackupService {
   private final ChangeLogRepository changeLogRepository;
   private final BackupCommandService backupCommandService;
   private final BackupCsvWriter backupCsvWriter;
+  private final BackupMapper backupMapper;
 
   public Backup createBackup(String workerIp) {
     // 1. 백업 필요 여부 판단
@@ -59,6 +61,13 @@ public class BackupService {
       // 최종 상태 반영된 결과 반환
       return backupRepository.findById(inProgress.getId()).get();
     }
+  }
+
+  // 대시보드 마지막 백업 정보 조회용
+  public Optional<BackupDto> getLatestBackup(BackupStatus status) {
+    BackupStatus searchStatus = (status == null) ? BackupStatus.COMPLETED : status;
+    return backupRepository.findFirstByStatusOrderByEndedAtDesc(searchStatus)
+        .map(backupMapper::toDto);
   }
 
   // ----- 헬퍼 메서드 -----
