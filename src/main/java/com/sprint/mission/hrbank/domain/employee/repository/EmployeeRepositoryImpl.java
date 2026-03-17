@@ -131,7 +131,12 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
     long totalCount = (total != null) ? total : 0L;
 
     // 2. 그룹별 직원 수 조회
-    var path = "department".equalsIgnoreCase(groupBy) ? department.name : employee.position;
+    String normalizedGroupBy = (groupBy == null) ? "department" : groupBy.trim().toLowerCase();
+    var path = switch (normalizedGroupBy) {
+      case "department" -> department.name;
+      case "position" -> employee.position;
+      default -> throw new IllegalArgumentException("groupBy must be 'department' or 'position'");
+    };
 
     List<com.querydsl.core.Tuple> results = queryFactory
         .select(path, employee.count())
@@ -144,7 +149,9 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
     return results.stream()
         .map(tuple -> {
           String key = tuple.get(path);
-          Long count = tuple.get(employee.count());
+          Long countWrapper = tuple.get(employee.count());
+          long count = (countWrapper != null) ? countWrapper : 0L;
+          
           double percentage = (totalCount > 0) ? (double) count / totalCount * 100 : 0.0;
           // 소수점 첫째 자리까지 반올림
           percentage = Math.round(percentage * 10.0) / 10.0;
