@@ -1,6 +1,23 @@
 spring:
   application:
     name: hrbank
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME:default_user}
+    password: ${DB_PASSWORD:default_password}
+  jpa:
+    hibernate:
+      ddl-auto: create # 시작 시 drop + create
+    properties:
+      hibernate:
+        format_sql: true # 로그에 출력되는 SQL 포맷팅
+    # open-in-view: false # OSIV 비활성화
+
+logging:
+  level:
+    org.hibernate.SQL: debug # 실행되는 SQL 문장 로그로 출력
+    org.hibernate.orm.jdbc.bind: trace # 바인딩 파라미터 값을 로그로 출력
 
 hrbank:
   storage:
