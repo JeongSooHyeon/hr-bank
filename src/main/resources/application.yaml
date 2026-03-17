@@ -10,3 +10,6 @@ hrbank:
   backup:
     # 1시간(3600000ms)마다 실행
     interval-ms: 3600000
+
+    # 백업 시점에 저장된 파일들을 500개씩 나누어서 백업
+    batch-size: 500

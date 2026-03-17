@@ -1,6 +1,7 @@
 package com.sprint.mission.hrbank.domain.backup;
 
 import com.sprint.mission.hrbank.domain.backup.dto.BackupDto;
+import com.sprint.mission.hrbank.domain.changelog.IpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,11 +23,10 @@ public class BackupController {
   private final BackupService backupService;
   private final BackupMapper backupMapper;
 
-  // 데이터 백업 생성
   @PostMapping
   public ResponseEntity<BackupDto> createBackup(HttpServletRequest request) {
-    // 클라이언트의 IP 주소 추출
-    String clientIp = extractClientIp(request);
+    // 클라이언트의 IP 주소 추출 (changelog.IpUtil 활용)
+    String clientIp = IpUtil.getClientIp(request);
 
     // 백업 필요 여부 판단 및 이력 저장
     Backup backup = backupService.createBackup(clientIp);
@@ -42,15 +42,5 @@ public class BackupController {
     return backupService.getLatestBackup(status)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.ok().build());
-  }
-
-  // ----- 헬퍼 메서드 -----
-  // HttpServletRequest에서 클라이언트의 실제 IP를 추출하는 메서드
-  private String extractClientIp(HttpServletRequest request) {
-    String ip = request.getHeader("X-Forwarded-For");
-    if (ip == null || ip.isEmpty()) {
-      ip = request.getRemoteAddr();
-    }
-    return ip;
   }
 }
