@@ -5,6 +5,7 @@ import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +38,9 @@ public class EmployeeController {
   }
 
   // 직원 생성 엔드포인트
-  @PostMapping
-  public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeCreateRequest req,
-      @RequestPart MultipartFile profile) {
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<EmployeeDto> createEmployee(@RequestPart EmployeeCreateRequest req,
+      @RequestPart(required = false) MultipartFile profile) {
     return ResponseEntity.ok(employeeService.create(req, profile));
   }
 
