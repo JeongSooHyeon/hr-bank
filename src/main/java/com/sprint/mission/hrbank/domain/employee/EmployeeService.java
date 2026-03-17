@@ -141,18 +141,8 @@ public class EmployeeService {
       throw new IllegalStateException("이메일이 중복됩니다");
     }
 
-    if (req.name() != null) {
-      employee.setName(req.name());
-    }
-    if (req.email() != null) {
-      employee.setEmail(req.email());
-    }
-    if (req.position() != null) {
-      employee.setPosition(req.position());
-    }
-    if (req.hireDate() != null) {
-      employee.setHireDate(req.hireDate());
-    }
+    // 엔티티 내부에서 파라미터를 받아 업데이트
+    employee.update(req.name(), req.email(), req.position(), req.hireDate(), req.status());
 
     // 부서를 수정하고자 할 때 요청으로 들어온 부서 ID로 검증 및 수정
     if (req.departmentId() != null) {

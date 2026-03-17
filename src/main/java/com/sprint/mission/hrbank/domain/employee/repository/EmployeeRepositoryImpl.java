@@ -94,7 +94,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   }
 
   @Override
-<<<<<<< Updated upstream
   public long countEmployees(EmployeeCountRequest req) {
     BooleanExpression statusCondition;
 
@@ -120,7 +119,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   }
 
   @Override
-  public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to, EmployeeTrendInterval interval) {
+  public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to,
+      EmployeeTrendInterval interval) {
     List<EmployeeTrendDto> result = new ArrayList<>();
     LocalDate current = from;
     long previousCount = -1;
@@ -128,7 +128,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
     // from부터 to까지 interval 단위로 시계열 루프 실행 (빈 구간도 포함)
     while (!current.isAfter(to)) {
       final LocalDate snapshotDate = getSnapshotDate(current, interval);
-      
+
       // 해당 시점의 총 직원 수 집계 (그 날짜 기준 입사자 중 퇴사자 제외)
       Long count = queryFactory
           .select(employee.count())
@@ -155,11 +155,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
       }
 
       result.add(new EmployeeTrendDto(snapshotDate, currentCount, change, changeRate));
-      
+
       previousCount = currentCount;
       current = getNextDate(current, interval);
     }
-    
+
     return result;
   }
 
@@ -171,7 +171,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
       case QUARTERLY -> {
         int month = date.getMonthValue();
         int lastMonthOfQuarter = ((month - 1) / 3 + 1) * 3;
-        yield date.withMonth(lastMonthOfQuarter).withDayOfMonth(date.withMonth(lastMonthOfQuarter).lengthOfMonth());
+        yield date.withMonth(lastMonthOfQuarter)
+            .withDayOfMonth(date.withMonth(lastMonthOfQuarter).lengthOfMonth());
       }
       case YEARLY -> date.withDayOfYear(date.lengthOfYear());
     };
@@ -185,7 +186,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
       case QUARTERLY -> date.plusMonths(3);
       case YEARLY -> date.plusYears(1);
     };
-=======
+  }
+
   public boolean existsByEmail(String email) {
     return false;
   }
@@ -198,7 +200,6 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   @Override
   public Optional<Employee> findByEmployeeId(long id) {
     return Optional.empty();
->>>>>>> Stashed changes
   }
 
   // 이름or이메일 필드가 포함되었는지 확인하고 없으면 null 리턴
@@ -243,7 +244,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   private BooleanExpression statusNotResigned() {
     return employee.status.ne(EmployeeStatus.RESIGNED);
   }
-  
+
   private BooleanExpression cursorCondition(String cursor) {
     if (!StringUtils.hasText(cursor)) {
       return null;

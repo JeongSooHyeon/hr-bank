@@ -4,6 +4,7 @@ import com.sprint.mission.hrbank.domain.baseentity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class StoredFile extends BaseEntity {
 
   // id
