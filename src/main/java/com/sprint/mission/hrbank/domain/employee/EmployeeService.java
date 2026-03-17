@@ -8,6 +8,7 @@ import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.repository.EmployeeRepository;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import com.sprint.mission.hrbank.domain.employee.mapper.EmployeeMapper;
+import com.sprint.mission.hrbank.domain.file.entity.StoredFile;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -43,10 +44,10 @@ public class EmployeeService {
       throw new NoSuchElementException("해당 부서를 찾을 수 없음");
     }
 
-    SortedFile file = null;
+    StoredFile file = null;
     //TODO: 추후 FILE 부분 완성이 되면 구현 예정입니다.
     if (profile != null) {
-//         file = new File();
+      file = new StoredFile();
 
       //  file 영속화
       //  fileRepository.save(file);
