@@ -3,10 +3,13 @@ package com.sprint.mission.hrbank.domain.employee;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDistributionDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +37,17 @@ public class EmployeeController {
   @Operation(summary = "직원 수 조회", description = "지정된 조건에 맞는 직원 수를 조회합니다. 상태 필터링 및 입사일 기간 필터링이 가능합니다.")
   public ResponseEntity<Long> getEmployeeCount(@ModelAttribute EmployeeCountRequest request) {
     return ResponseEntity.ok(employeeService.getEmployeeCount(request));
+  }
+
+  @GetMapping("/stats/distribution")
+  @Operation(summary = "직원 분포 조회", description = "지정된 기준으로 그룹화된 직원 분포를 조회합니다.")
+  public ResponseEntity<List<EmployeeDistributionDto>> getDistribution(
+      @Parameter(description = "그룹화 기준 (department: 부서별, position: 직무별, 기본값: department)")
+      @RequestParam(defaultValue = "department") String groupBy,
+      @Parameter(description = "직원 상태 (재직중, 휴직중, 퇴사, 기본값: ACTIVE)")
+      @RequestParam(defaultValue = "ACTIVE") EmployeeStatus status
+  ) {
+    return ResponseEntity.ok(employeeService.getEmployeeDistribution(groupBy, status));
   }
 
   // 직원 전체 목록 조회 엔드포인트

@@ -10,6 +10,7 @@ import com.sprint.mission.hrbank.domain.employee.Employee;
 import com.sprint.mission.hrbank.domain.employee.EmployeeStatus;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDistributionDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import com.sprint.mission.hrbank.domain.employee.mapper.EmployeeMapper;
@@ -113,6 +114,40 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
         .fetchOne();
 
     return count == null ? 0L : count;
+  }
+
+  @Override
+  public List<EmployeeDistributionDto> getEmployeeDistribution(String groupBy, EmployeeStatus status) {
+    // 1. 전체 직원 수 조회 (비율 계산용)
+    Long total = queryFactory
+        .select(employee.count())
+        .from(employee)
+        .where(statusEq(status))
+        .fetchOne();
+
+    long totalCount = (total != null) ? total : 0L;
+
+    // 2. 그룹별 직원 수 조회
+    var path = "department".equalsIgnoreCase(groupBy) ? department.name : employee.position;
+
+    List<com.querydsl.core.Tuple> results = queryFactory
+        .select(path, employee.count())
+        .from(employee)
+        .leftJoin(employee.department, department)
+        .where(statusEq(status))
+        .groupBy(path)
+        .fetch();
+
+    return results.stream()
+        .map(tuple -> {
+          String key = tuple.get(path);
+          Long count = tuple.get(employee.count());
+          double percentage = (totalCount > 0) ? (double) count / totalCount * 100 : 0.0;
+          // 소수점 첫째 자리까지 반올림
+          percentage = Math.round(percentage * 10.0) / 10.0;
+          return new EmployeeDistributionDto(key, count, percentage);
+        })
+        .toList();
   }
 
   // 이름or이메일 필드가 포함되었는지 확인하고 없으면 null 리턴
