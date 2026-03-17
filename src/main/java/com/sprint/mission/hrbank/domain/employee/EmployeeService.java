@@ -3,6 +3,7 @@ package com.sprint.mission.hrbank.domain.employee;
 import com.sprint.mission.hrbank.domain.department.Department;
 import com.sprint.mission.hrbank.domain.department.DepartmentRepository;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
@@ -31,6 +32,11 @@ public class EmployeeService {
   public CursorPageResponseEmployeeDto getEmployees(EmployeeSearchRequest req) {
     Objects.requireNonNull(req, ("유효하지 않은 요청!"));
     return employeeRepository.search(req);
+  }
+
+  public long getEmployeeCount(EmployeeCountRequest req) {
+    // 리포지토리에서 status가 null이면 기본적으로 재직자(ACTIVE, ON_LEAVE)를 카운트하도록 구현됨
+    return employeeRepository.countEmployees(req);
   }
 
   // 직원 상세 목록 조회 서비스 메서드
