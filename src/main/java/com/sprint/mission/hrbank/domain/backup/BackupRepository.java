@@ -26,7 +26,7 @@ public interface BackupRepository extends JpaRepository<Backup, Long>,
   @Query("SELECT b FROM Backup b "
       + "WHERE (:idAfter IS NULL OR b.id < :idAfter) " // 커서 기반 페이징 (내림차순)
       + "AND (:worker IS NULL OR b.worker LIKE %:worker%) " // worker (부분일치)
-      + "AND (:startedAtFrom IS NULL OR b.startedAt >= :startedAtFrom) " // 기간 검색
+      + "AND (:startedAtFrom IS NULL OR b.startedAt >= :startedAtFrom) " // startedAt* (범위조건)
       + "AND (:startedAtTo IS NULL OR b.startedAt <= :startedAtTo) "
       + "AND (:status IS NULL OR b.status = :status)" // status (완전일치)
   )
