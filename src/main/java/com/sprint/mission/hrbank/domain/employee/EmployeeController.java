@@ -11,8 +11,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -51,9 +52,16 @@ public class EmployeeController {
       @Parameter(description = "시간 단위 (day, week, month, quarter, year, 기본값: month)")
       @RequestParam(defaultValue = "month") String unit
   ) {
-    LocalDate fromDate = from != null ? LocalDate.parse(from) : null;
-    LocalDate toDate = to != null ? LocalDate.parse(to) : null;
-    
+    LocalDate fromDate;
+    LocalDate toDate;
+
+    try {
+      fromDate = from != null ? LocalDate.parse(from) : null;
+      toDate = to != null ? LocalDate.parse(to) : null;
+    } catch (DateTimeParseException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
     // 명세에 명시된 소문자 값들을 Enum으로 매핑
     EmployeeTrendInterval interval = switch (unit.toLowerCase()) {
       case "day" -> EmployeeTrendInterval.DAILY;
@@ -63,7 +71,7 @@ public class EmployeeController {
       case "year" -> EmployeeTrendInterval.YEARLY;
       default -> EmployeeTrendInterval.MONTHLY;
     };
-    
+
     return ResponseEntity.ok(employeeService.getEmployeeTrend(fromDate, toDate, interval));
   }
 
