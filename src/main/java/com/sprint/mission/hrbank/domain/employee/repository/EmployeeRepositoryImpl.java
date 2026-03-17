@@ -92,10 +92,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
 
   @Override
   public long countEmployees(EmployeeCountRequest req) {
-    // status가 null이면 기본적으로 RESIGNED를 제외한 재직자(ACTIVE, ON_LEAVE)만 카운트
+    // status 파라미터가 있으면 해당 상태로 필터링, 없으면 기본적으로 퇴사자 제외(ACTIVE, ON_LEAVE)
     BooleanExpression statusCondition = req.status() != null 
         ? employee.status.eq(req.status()) 
-        : employee.status.ne(EmployeeStatus.RESIGNED);
+        : statusNotResigned();
 
     Long count = queryFactory
         .select(employee.count())
