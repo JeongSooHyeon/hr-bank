@@ -1,6 +1,6 @@
 package com.sprint.mission.hrbank.domain.employee;
 
-import com.sprint.mission.hrbank.domain.baseentity.BaseEntity;
+import com.sprint.mission.hrbank.domain.baseentity.BaseUpdatableEntity;
 import com.sprint.mission.hrbank.domain.department.Department;
 import com.sprint.mission.hrbank.domain.file.entity.StoredFile;
 import jakarta.persistence.CascadeType;
@@ -22,7 +22,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "employees")
 @RequiredArgsConstructor
-public class Employee extends BaseEntity {
+public class Employee extends BaseUpdatableEntity {
 
   @Column(nullable = false)
   private String name;
@@ -62,6 +62,4 @@ public class Employee extends BaseEntity {
     this.status = EmployeeStatus.ACTIVE;
     this.profileImage = profileImage;
   }
-
-
 }

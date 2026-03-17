@@ -1,5 +1,6 @@
 package com.sprint.mission.hrbank.domain.employee;
 
+import com.sprint.mission.hrbank.domain.changelog.IpUtil;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
@@ -11,6 +12,7 @@ import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendInterval;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -102,15 +104,21 @@ public class EmployeeController {
 
   // 직원 생성 엔드포인트
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<EmployeeDto> createEmployee(@RequestPart EmployeeCreateRequest req,
-      @RequestPart(required = false) MultipartFile profile) {
-    return ResponseEntity.ok(employeeService.create(req, profile));
+  public ResponseEntity<EmployeeDto> createEmployee(
+      @RequestPart EmployeeCreateRequest req,
+      @RequestPart(required = false) MultipartFile profile,
+      HttpServletRequest request) {
+    String clientIp = IpUtil.getClientIp(request);
+    return ResponseEntity.ok(employeeService.create(req, profile, clientIp));
   }
 
   // id를 Path Variable로 받고 삭제 수행
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-    employeeService.delete(id);
+  public ResponseEntity<Void> deleteEmployee(
+      @PathVariable Long id,
+      HttpServletRequest request) {
+    String clientIp = IpUtil.getClientIp(request);
+    employeeService.delete(id, clientIp);
     return ResponseEntity.noContent().build();
   }
 }

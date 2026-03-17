@@ -1,5 +1,7 @@
 package com.sprint.mission.hrbank.domain.employee;
 
+import com.sprint.mission.hrbank.domain.changelog.ChangeLogType;
+import com.sprint.mission.hrbank.domain.changelog.service.ChangeLogService;
 import com.sprint.mission.hrbank.domain.department.Department;
 import com.sprint.mission.hrbank.domain.department.DepartmentRepository;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
@@ -12,7 +14,8 @@ import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendInterval;
 import com.sprint.mission.hrbank.domain.employee.mapper.EmployeeMapper;
 import com.sprint.mission.hrbank.domain.employee.repository.EmployeeRepository;
-import java.util.List;
+import com.sprint.mission.hrbank.domain.file.entity.StoredFile;
+import com.sprint.mission.hrbank.domain.file.service.FileService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,7 +24,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -32,6 +34,8 @@ public class EmployeeService {
   private final EmployeeRepository employeeRepository;
   private final DepartmentRepository departmentRepository;
   private final EmployeeMapper employeeMapper;
+  private final FileService fileService;
+  private final ChangeLogService changeLogService;
 
   // 직원 전체 목록 조회 서비스 메서드
   @Transactional
@@ -45,11 +49,13 @@ public class EmployeeService {
     return employeeRepository.countEmployees(req);
   }
 
-  public List<EmployeeDistributionDto> getEmployeeDistribution(String groupBy, EmployeeStatus status) {
+  public List<EmployeeDistributionDto> getEmployeeDistribution(String groupBy,
+      EmployeeStatus status) {
     return employeeRepository.getEmployeeDistribution(groupBy, status);
   }
 
-  public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to, EmployeeTrendInterval interval) {
+  public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to,
+      EmployeeTrendInterval interval) {
     // toDate가 없으면 현재 일시
     if (to == null) {
       to = LocalDate.now();
@@ -84,8 +90,10 @@ public class EmployeeService {
 
   // 직원 생성 서비스 메서드
   @Transactional
-  public EmployeeDto create(@RequestPart EmployeeCreateRequest req,
-      @RequestPart MultipartFile profile) {
+  public EmployeeDto create(
+      EmployeeCreateRequest req,
+      MultipartFile profile,
+      String clientIp) {
     Objects.requireNonNull(req, "유효하지 않은 요청입니다!");
 
     Optional<Department> department = departmentRepository.findById(req.departmentId());
@@ -94,15 +102,10 @@ public class EmployeeService {
       throw new NoSuchElementException("해당 부서를 찾을 수 없음");
     }
 
-//
-//    StoredFile file = null;
-//    //TODO: 추후 FILE 부분 완성이 되면 구현 예정입니다.
-//    if (profile != null) {
-//      file = new StoredFile();
-//
-//      //  file 영속화
-//      //  fileRepository.save(file);
-//    }
+    StoredFile file = null;
+    if (profile != null) {
+      file = fileService.saveData(profile);
+    }
 
     Employee employee = new Employee(
         req.name(),
@@ -110,22 +113,32 @@ public class EmployeeService {
         department.get(),
         req.position(),
         req.hireDate(),
-        null
+        file
     );
 
     // 새로 생성된 유저 엔티티를 영속화함.
     Employee saved = employeeRepository.save(employee); // 레포지토리 인터페이스를 통해 영속화
-    return employeeMapper.entityToDto(saved); // 그 후 employeeDto 형식으로 리턴.ㅎ
+
+    // 수정 이력을 남김
+    changeLogService.createChangeLog(null, saved, ChangeLogType.CREATED, clientIp, req.memo());
+
+    return employeeMapper.entityToDto(saved); // 그 후 employeeDto 형식으로 리턴.
   }
 
   // 삭제를 수행하는 서비스 계층 메소드
   @Transactional
-  public void delete(Long id) {
+  public void delete(Long id, String clientIp) {
     Objects.requireNonNull(id, "유효하지 않은 id입니다!");
-    if (!employeeRepository.existsById(id)) {
-      throw new NoSuchElementException("해당 유저를 찾을 수 없음!");
-    }
-    employeeRepository.deleteById(id); //JPARepository에 기본 내장된 deleteById 수행.
-  }
 
+    // 유저 존재 여부 검증
+    Employee target = employeeRepository
+        .findById(id)
+        .orElseThrow(() -> new NoSuchElementException("유저가 존재하지 않음!"));
+
+    // 수정 이력을 남김
+    changeLogService.createChangeLog(target, target, ChangeLogType.DELETED, clientIp, "직원 삭제");
+
+    employeeRepository.deleteById(id); //JPA Repository에 기본 내장된 deleteById 수행.
+
+  }
 }
