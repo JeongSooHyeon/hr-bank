@@ -26,7 +26,7 @@ public class ChangeLogController {
 
 
   // 수정 이력 목록 조회
-  @Operation(summary = "수정 이력 목록 조회", description = "직원 정보 수정 이력 목록을 조회합니다.")
+  @Operation(summary = "직원 정보 수정 이력 목록 조회", description = "직원 정보 수정 이력 목록을 조회합니다. 상세 변경 내용은 포함되지 않습니다.")
   @ApiResponse(responseCode = "200", description = "조회 성공")
   @ApiResponse(responseCode = "400", description = "잘못된 요청 또는 지원하지 않는 정렬 필드")
   @ApiResponse(responseCode = "500", description = "서버 오류")
@@ -37,7 +37,7 @@ public class ChangeLogController {
   }
 
   // 상세 이력 목록 조회
-  @Operation(summary = "수정 이력 상세 조회", description = "직원 정보 수정 이력의 상세 정보를 조회합니다. 변경 상세 내용이 포함됩니다.")
+  @Operation(summary = "직원 정보 수정 이력 상세 조회", description = "직원 정보 수정 이력의 상세 정보를 조회합니다. 변경 상세 내용이 포함됩니다.")
   @ApiResponse(responseCode = "200", description = "조회 성공")
   @ApiResponse(responseCode = "404", description = "이력을 찾을 수 없음")
   @ApiResponse(responseCode = "500", description = "서버 오류")
