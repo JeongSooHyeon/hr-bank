@@ -46,7 +46,7 @@ public class Employee extends BaseEntity {
   @Column(nullable = false)
   private EmployeeStatus status;
 
-  @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
   @JoinColumn(name = "files_id")
   private StoredFile profileImage;
 
