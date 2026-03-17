@@ -86,12 +86,14 @@ public class BackupCsvWriter {
         for (Employee employee : employees) {
           writer.write(toCsvLine(employee));
           writer.newLine();
-          // 영속성 컨텍스트 비우기 (메모리 최적화)
-          entityManager.detach(employee);
         }
 
         // 버퍼의 내용을 물리 디스크에 기록
         writer.flush();
+
+        // 현재 배치에서 사용한 엔티티들을 영속성 컨텍스트에서 통째로 제거
+        entityManager.clear();
+
         // 다음 배치를 위해 마지막으로 처리된 ID 갱신
         lastId = employees.get(employees.size() - 1).getId();
       }
