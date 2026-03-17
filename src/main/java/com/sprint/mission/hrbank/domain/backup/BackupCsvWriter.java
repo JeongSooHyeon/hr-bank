@@ -47,14 +47,18 @@ public class BackupCsvWriter {
   private int batchSize;
 
   // 전체 직원을 CSV로 저장
-  public StoredFile writeEmployeeBackupCsv(Instant startedAt) throws IOException {
+  public StoredFile writeEmployeeBackupCsv(Long backupId, Instant startedAt) throws IOException {
     // 디렉토리 생성 (존재하지 않을 경우)
     Path filesDir = storageRootPath.resolve("files");
     Files.createDirectories(filesDir);
 
-    // 보안 및 중복 방지를 위해 UUID를 결합한 저장용 파일명 생성
-    String originalFilename = "employees-backup-" + FILE_TIME_FORMATTER.format(startedAt) + ".csv";
-    Path csvPath = filesDir.resolve(UUID.randomUUID() + "-" + originalFilename);
+    // 저장용 파일명 생성
+    String timestamp = FILE_TIME_FORMATTER.format(startedAt);
+    String originalFilename = String.format("employee_backup_%d_%s.csv", backupId, timestamp);
+
+    // 실제 디스크에 저장될 물리적 파일명 생성 (파일 중복 충돌 방지)
+    String storedName = UUID.randomUUID() + "-" + originalFilename;
+    Path csvPath = filesDir.resolve(storedName);
 
     // BufferedWriter를 사용하여 데이터를 메모리에 쌓지 않고 디스크로 직접 스트리밍
     try (BufferedWriter writer = Files.newBufferedWriter(csvPath, StandardCharsets.UTF_8)) {
@@ -101,22 +105,27 @@ public class BackupCsvWriter {
   }
 
   // 에러 발생 시 .log 파일 생성
-  public StoredFile writeErrorLog(String workerIp, Instant startedAt, Exception exception)
+  public StoredFile writeErrorLog(Long backupId, String workerIp, Instant startedAt,
+      Exception exception)
       throws IOException {
     // 디렉토리 생성 (존재하지 않을 경우)
     Path filesDir = storageRootPath.resolve("files");
     Files.createDirectories(filesDir);
 
-    // 보안 및 중복 방지를 위해 UUID를 결합한 저장용 파일명 생성
-    String originalFilename = "error-log-" + FILE_TIME_FORMATTER.format(startedAt) + ".log";
+    // 저장용 파일명 생성
+    String timestamp = FILE_TIME_FORMATTER.format(startedAt);
+    String originalFilename = String.format("error_log_%d_%s.log", backupId, timestamp);
+
+    // 실제 디스크에 저장될 물리적 파일명 생성 (파일 중복 충돌 방지)
     Path logPath = filesDir.resolve(UUID.randomUUID() + "-" + originalFilename);
 
     // 스택 트레이스를 문자열로 추출
     StringWriter sw = new StringWriter();
     exception.printStackTrace(new PrintWriter(sw));
 
-    String content = String.format("Worker: %s\nStartedAt: %s\nError: %s\n\nStackTrace:\n%s",
-        workerIp, startedAt, exception.getMessage(), sw.toString());
+    String content = String.format(
+        "Backup ID: %d\nWorker: %s\nStartedAt: %s\nError: %s\n\nStackTrace:\n%s",
+        backupId, workerIp, startedAt, exception.getMessage(), sw.toString());
 
     Files.writeString(logPath, content, StandardCharsets.UTF_8);
     return fileService.registerExistingFile(originalFilename, "text/plain", logPath);
