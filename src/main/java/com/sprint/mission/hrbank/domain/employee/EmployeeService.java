@@ -5,12 +5,14 @@ import com.sprint.mission.hrbank.domain.department.DepartmentRepository;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDistributionDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendInterval;
 import com.sprint.mission.hrbank.domain.employee.mapper.EmployeeMapper;
 import com.sprint.mission.hrbank.domain.employee.repository.EmployeeRepository;
+import java.util.List;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,6 +43,10 @@ public class EmployeeService {
   public long getEmployeeCount(EmployeeCountRequest req) {
     // 리포지토리에서 status가 null이면 기본적으로 재직자(ACTIVE, ON_LEAVE)를 카운트하도록 구현됨
     return employeeRepository.countEmployees(req);
+  }
+
+  public List<EmployeeDistributionDto> getEmployeeDistribution(String groupBy, EmployeeStatus status) {
+    return employeeRepository.getEmployeeDistribution(groupBy, status);
   }
 
   public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to, EmployeeTrendInterval interval) {

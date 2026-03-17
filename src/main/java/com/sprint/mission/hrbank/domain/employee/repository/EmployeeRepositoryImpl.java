@@ -10,6 +10,7 @@ import com.sprint.mission.hrbank.domain.employee.Employee;
 import com.sprint.mission.hrbank.domain.employee.EmployeeStatus;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDistributionDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendDto;
@@ -119,6 +120,47 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   }
 
   @Override
+  public List<EmployeeDistributionDto> getEmployeeDistribution(String groupBy, EmployeeStatus status) {
+    // 1. 전체 직원 수 조회 (비율 계산용)
+    Long total = queryFactory
+        .select(employee.count())
+        .from(employee)
+        .where(statusEq(status))
+        .fetchOne();
+
+    long totalCount = (total != null) ? total : 0L;
+
+    // 2. 그룹별 직원 수 조회
+    String normalizedGroupBy = (groupBy == null) ? "department" : groupBy.trim().toLowerCase();
+    var path = switch (normalizedGroupBy) {
+      case "department" -> department.name;
+      case "position" -> employee.position;
+      default -> throw new IllegalArgumentException("groupBy must be 'department' or 'position'");
+    };
+
+    List<com.querydsl.core.Tuple> results = queryFactory
+        .select(path, employee.count())
+        .from(employee)
+        .leftJoin(employee.department, department)
+        .where(statusEq(status))
+        .groupBy(path)
+        .fetch();
+
+    return results.stream()
+        .map(tuple -> {
+          String key = tuple.get(path);
+          Long countWrapper = tuple.get(employee.count());
+          long count = (countWrapper != null) ? countWrapper : 0L;
+          
+          double percentage = (totalCount > 0) ? (double) count / totalCount * 100 : 0.0;
+          // 소수점 첫째 자리까지 반올림
+          percentage = Math.round(percentage * 10.0) / 10.0;
+          return new EmployeeDistributionDto(key, count, percentage);
+        })
+        .toList();
+  }
+
+  @Override
   public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to, EmployeeTrendInterval interval) {
     List<EmployeeTrendDto> result = new ArrayList<>();
     LocalDate current = from;
@@ -127,7 +169,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
     // from부터 to까지 interval 단위로 시계열 루프 실행 (빈 구간도 포함)
     while (!current.isAfter(to)) {
       final LocalDate snapshotDate = getSnapshotDate(current, interval);
-      
+
       // 해당 시점의 총 직원 수 집계 (그 날짜 기준 입사자 중 퇴사자 제외)
       Long count = queryFactory
           .select(employee.count())
@@ -154,11 +196,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
       }
 
       result.add(new EmployeeTrendDto(snapshotDate, currentCount, change, changeRate));
-      
+
       previousCount = currentCount;
       current = getNextDate(current, interval);
     }
-    
+
     return result;
   }
 
@@ -228,7 +270,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   private BooleanExpression statusNotResigned() {
     return employee.status.ne(EmployeeStatus.RESIGNED);
   }
-  
+
   private BooleanExpression cursorCondition(String cursor) {
     if (!StringUtils.hasText(cursor)) {
       return null;
