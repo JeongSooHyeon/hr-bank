@@ -1,7 +1,6 @@
 package com.sprint.mission.hrbank.domain.employee;
 
 import com.sprint.mission.hrbank.domain.changelog.IpUtil;
-import com.sprint.mission.hrbank.domain.changelog.service.ChangeLogService;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
@@ -41,7 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class EmployeeController {
 
   private final EmployeeService employeeService; // 추후 구현 예정
-  private final ChangeLogService changeLogService;
 
   @GetMapping("/count")
   @Operation(summary = "직원 수 조회", description = "지정된 조건에 맞는 직원 수를 조회합니다. 상태 필터링 및 입사일 기간 필터링이 가능합니다.")

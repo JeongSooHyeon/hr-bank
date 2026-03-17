@@ -18,7 +18,6 @@ import com.sprint.mission.hrbank.domain.employee.mapper.EmployeeMapper;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -120,7 +119,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   }
 
   @Override
-  public List<EmployeeDistributionDto> getEmployeeDistribution(String groupBy, EmployeeStatus status) {
+  public List<EmployeeDistributionDto> getEmployeeDistribution(String groupBy,
+      EmployeeStatus status) {
     // 1. 전체 직원 수 조회 (비율 계산용)
     Long total = queryFactory
         .select(employee.count())
@@ -161,7 +161,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
   }
 
   @Override
-  public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to, EmployeeTrendInterval interval) {
+  public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to,
+      EmployeeTrendInterval interval) {
     List<EmployeeTrendDto> result = new ArrayList<>();
     LocalDate current = from;
     long previousCount = -1;
@@ -204,6 +205,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
     return result;
   }
 
+
   private LocalDate getSnapshotDate(LocalDate date, EmployeeTrendInterval interval) {
     return switch (interval) {
       case DAILY -> date;
@@ -212,7 +214,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
       case QUARTERLY -> {
         int month = date.getMonthValue();
         int lastMonthOfQuarter = ((month - 1) / 3 + 1) * 3;
-        yield date.withMonth(lastMonthOfQuarter).withDayOfMonth(date.withMonth(lastMonthOfQuarter).lengthOfMonth());
+        yield date.withMonth(lastMonthOfQuarter)
+            .withDayOfMonth(date.withMonth(lastMonthOfQuarter).lengthOfMonth());
       }
       case YEARLY -> date.withDayOfYear(date.lengthOfYear());
     };
