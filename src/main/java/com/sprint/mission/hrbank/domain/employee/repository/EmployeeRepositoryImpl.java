@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.mission.hrbank.domain.employee.Employee;
 import com.sprint.mission.hrbank.domain.employee.EmployeeStatus;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import com.sprint.mission.hrbank.domain.employee.mapper.EmployeeMapper;
@@ -87,6 +88,21 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
         total == null ? 0L : total,
         hasNext
     );
+  }
+
+  @Override
+  public long countEmployees(EmployeeCountRequest req) {
+    Long count = queryFactory
+        .select(employee.count())
+        .from(employee)
+        .where(
+            statusEq(req.status()),
+            hireDateGoe(req.fromDate()),
+            hireDateLoe(req.toDate())
+        )
+        .fetchOne();
+
+    return count == null ? 0L : count;
   }
 
   // 이름or이메일 필드가 포함되었는지 확인하고 없으면 null 리턴

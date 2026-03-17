@@ -3,6 +3,7 @@ package com.sprint.mission.hrbank.domain.employee;
 import com.sprint.mission.hrbank.domain.department.Department;
 import com.sprint.mission.hrbank.domain.department.DepartmentRepository;
 import com.sprint.mission.hrbank.domain.employee.dto.CursorPageResponseEmployeeDto;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCountRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeCreateRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.repository.EmployeeRepository;
@@ -31,6 +32,10 @@ public class EmployeeService {
     Objects.requireNonNull(req, ("유효하지 않은 요청!"));
 
     return employeeRepository.search(req);
+  }
+
+  public long getEmployeeCount(EmployeeCountRequest req) {
+    return employeeRepository.countEmployees(req);
   }
 
 
