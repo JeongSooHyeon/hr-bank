@@ -27,6 +27,7 @@ public class BackupService {
   private final BackupMapper backupMapper;
 
   public CursorPageResponseBackupDto getBackups(BackupSearchRequest request) {
+    // TODO: StartedAtFrom startedAtTo 검증 로직 추가 필요
     // 요청 파라미터 정규화
     int size = normalizeSize(request.size());
     String sortField = normalizeSortField(request.sortField());
@@ -146,7 +147,7 @@ public class BackupService {
         && !"endedAt".equals(sortField)
         && !"status".equals(sortField)
     ) {
-      throw new IllegalArgumentException("sortField는 startedAt, endedAt, status만 허용됩니다.");
+      throw new IllegalArgumentException("sortField는 startedAt, endedAt, status만 허용됩니다");
     }
     return sortField;
   }
@@ -162,7 +163,7 @@ public class BackupService {
     if ("desc".equalsIgnoreCase(sortDirection)) {
       return Sort.Direction.DESC;
     }
-    throw new IllegalArgumentException("sortDirection은 ASC 또는 DESC만 허용됩니다.");
+    throw new IllegalArgumentException("sortDirection은 ASC 또는 DESC만 허용됩니다");
   }
 
   // worker 정규화
