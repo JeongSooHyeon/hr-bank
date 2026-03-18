@@ -16,4 +16,15 @@ public record BackupSearchRequest(
     String sortDirection
 ) {
 
+  public BackupSearchRequest {
+    if (size == null || size <= 0) {
+      size = 10;
+    }
+    if (sortField == null || sortField.isBlank()) {
+      sortField = "startedAt";
+    }
+    if (sortDirection == null || sortDirection.isBlank()) {
+      sortDirection = "desc";
+    }
+  }
 }
