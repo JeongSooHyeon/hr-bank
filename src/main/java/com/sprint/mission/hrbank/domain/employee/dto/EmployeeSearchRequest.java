@@ -17,6 +17,11 @@ public record EmployeeSearchRequest(String nameOrEmail,
                                     EmployeeStatus status,
                                     String cursor,
                                     Long idAfter,
-                                    int size) {
+                                    Integer size) {
 
+  public EmployeeSearchRequest {
+    if (size == null || size <= 0) {
+      size = 10;
+    }
+  }
 }
