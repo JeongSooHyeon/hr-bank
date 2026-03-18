@@ -9,6 +9,7 @@ import com.sprint.mission.hrbank.domain.employee.dto.EmployeeDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeSearchRequest;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendDto;
 import com.sprint.mission.hrbank.domain.employee.dto.EmployeeTrendInterval;
+import com.sprint.mission.hrbank.domain.employee.dto.EmployeeUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,6 +98,25 @@ public class EmployeeController {
     CursorPageResponseEmployeeDto response = employeeService.getEmployees(req);
     return ResponseEntity.ok(response);
   }
+
+  // 직원 수정 엔드포인트
+  @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<EmployeeDto> updateEmployee(
+      @PathVariable Long id, // 수정하고자 하는 Employee의 id
+
+      @Valid @RequestPart EmployeeUpdateRequest req, // 직원 정보 수정 dto
+      @RequestPart(required = false) MultipartFile profile, // (선택적) 프로필 이미지
+      HttpServletRequest request // ip 주소를 추출하기 위해 HttpServletRequest를 매개변수로 받음
+  ) {
+
+    // IP 유틸 함수를 통해 HttpServletRequest에서 IP를 추출함.
+    String clientIp = IpUtil.getClientIp(request);
+
+    // 서비스 계층의 update 메서드 실행
+    return ResponseEntity.ok(employeeService.update(id, req, profile, clientIp));
+
+  }
+
 
   // 직원 상세 조회 엔드포인트
   @GetMapping("/{id}")
