@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -56,6 +57,10 @@ public class Backup extends BaseEntity {
   @Column(name = "in_progress_status")
   private String inProgressStatus;
 
+  // 백업 상태 덮어쓰기를 방지하기 위해 추가
+  @Version // JPA가 자동으로 관리하는 버전 컬럼
+  private Long version;
+
   public Backup(String worker, Instant startedAt, BackupStatus status) {
     this.worker = worker;
     this.startedAt = startedAt;
@@ -81,6 +86,9 @@ public class Backup extends BaseEntity {
   // ----- 헬퍼 메서드 -----
   // 백업 상태 변경
   private void changeStatus(BackupStatus status) {
+    if (this.status != null && this.status != BackupStatus.IN_PROGRESS) {
+      throw new IllegalStateException("이미 종료된 백업 상태는 변경할 수 없습니다. 현재 상태: " + this.status);
+    }
     this.status = status;
     this.inProgressStatus = (status == BackupStatus.IN_PROGRESS) ? "Y" : null;
   }
