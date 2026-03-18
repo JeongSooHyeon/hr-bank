@@ -47,14 +47,26 @@ public class BackupService {
     Pageable pageable = PageRequest.of(0, size, sort); // 페이지 번호, 페이지 크기, 정렬 규칙 저장
 
     // JPQL 조회 - 실제 목록 데이터를 페이지 단위로 조회
-    Slice<Backup> backupSlices = backupRepository.searchBackups(
-        worker,
-        request.status(),
-        request.startedAtFrom(),
-        request.startedAtTo(),
-        request.idAfter(),
-        pageable
-    );
+    Slice<Backup> backupSlices;
+    if (sortDirection == Direction.ASC) {
+      backupSlices = backupRepository.searchBackupsAsc(
+          worker,
+          request.status(),
+          request.startedAtFrom(),
+          request.startedAtTo(),
+          request.idAfter(),
+          pageable
+      );
+    } else {
+      backupSlices = backupRepository.searchBackupsDesc(
+          worker,
+          request.status(),
+          request.startedAtFrom(),
+          request.startedAtTo(),
+          request.idAfter(),
+          pageable
+      );
+    }
 
     // DTO 변환
     List<BackupDto> content = backupSlices.getContent().stream()
