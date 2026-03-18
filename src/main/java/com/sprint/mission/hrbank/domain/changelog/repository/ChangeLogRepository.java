@@ -20,7 +20,7 @@ public interface ChangeLogRepository extends JpaRepository<ChangeLog, Long> {
       // 사번 부분 일치
       + "AND (:memo IS NULL OR c.memo LIKE %:memo%) " // 메모 부분 일치
       + "AND (:ipAddress IS NULL OR c.ipAddress LIKE %:ipAddress%) "  // ip 부분 일치
-      + "AND (:type IS NULL OR c.type = CAST(:type AS string)) " // 유형 완전 일치
+      + "AND (:type IS NULL OR c.type = :type) " // 유형 완전 일치
       + "AND (CAST(:atFrom AS timestamp) IS NULL OR c.createdAt >= :atFrom) " // 시간 범위 ~부터
       + "AND (CAST(:atTo AS timestamp) IS NULL OR c.createdAt <= :atTo)")
   // 시간 범위 ~까지
