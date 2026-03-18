@@ -127,11 +127,20 @@ public class EmployeeController {
   // 직원 생성 엔드포인트
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<EmployeeDto> createEmployee(
-      @Valid @RequestPart EmployeeCreateRequest req,
+      @Valid @RequestPart EmployeeCreateRequest employee,
       @RequestPart(required = false) MultipartFile profile,
       HttpServletRequest request) {
     String clientIp = IpUtil.getClientIp(request);
-    return ResponseEntity.ok(employeeService.create(req, profile, clientIp));
+    return ResponseEntity.ok(employeeService.create(employee, profile, clientIp));
+  }
+
+  // 직원 생성 엔드포인트
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<EmployeeDto> createEmployeeJson(
+      @Valid @RequestPart EmployeeCreateRequest employee,
+      HttpServletRequest request) {
+    String clientIp = IpUtil.getClientIp(request);
+    return ResponseEntity.ok(employeeService.create(employee, null, clientIp));
   }
 
   // id를 Path Variable로 받고 삭제 수행
