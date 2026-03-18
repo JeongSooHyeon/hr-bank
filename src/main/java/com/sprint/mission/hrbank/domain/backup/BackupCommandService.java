@@ -3,6 +3,7 @@ package com.sprint.mission.hrbank.domain.backup;
 import com.sprint.mission.hrbank.domain.file.entity.StoredFile;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +22,18 @@ public class BackupCommandService {
 
   // [백업 생성 시]
   // - 백업 시작 시 '진행 중' 상태 이력 생성
-  // - 이미 진생 중인 백업이 있다면 예외 발생
+  // - 이미 진행 중인 백업이 있다면 예외 발생
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public Backup createInProgress(String worker) {
-    if (backupRepository.existsByStatus(BackupStatus.IN_PROGRESS)) {
-      throw new IllegalStateException("이미 진행 중인 백업이 있습니다.");
+    try {
+      // 백업 생성 시도
+      return backupRepository.saveAndFlush(
+          new Backup(worker, Instant.now(), BackupStatus.IN_PROGRESS)
+      );
+    } catch (DataIntegrityViolationException e) {
+      // 이미 진행 중인 백업이 있을 시 (유니크 제약 위반 발생 시) 예외 처리
+      throw new IllegalStateException("이미 진행 중인 백업이 있습니다.", e);
     }
-    return backupRepository.save(new Backup(worker, Instant.now(), BackupStatus.IN_PROGRESS));
   }
 
   // [변경 사항이 없을 시] '건너뜀' 상태 이력 생성
