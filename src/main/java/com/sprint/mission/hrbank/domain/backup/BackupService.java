@@ -110,7 +110,6 @@ public class BackupService {
     );
   }
 
-  @Transactional
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public Backup createBackup(String workerIp) {
     // 1. 백업 필요 여부 판단
@@ -176,6 +175,16 @@ public class BackupService {
     // countChangeLogs를 활용하여 변경 이력 존재 여부 확인
     long changedCount = changeLogRepository.countChangeLogs(lastBackupTime, now);
     return changedCount > 0;
+  }
+
+  // 예외 메시지가 너무 길 경우 DB 저장 시 에러가 날 수 있어 안전하게 요약
+  private String summarizeException(Exception e) {
+    String message = e.getMessage();
+    if (message == null) {
+      return "Unknown Error occurred during backup.";
+    }
+    // 보통 DB의 String/Varchar 컬럼 크기인 255자를 기준으로 안전하게 200자 내외로 자름
+    return message.length() > 200 ? message.substring(0, 200) + "..." : message;
   }
 
   // size 정규화
@@ -244,14 +253,5 @@ public class BackupService {
       default: // startedAt 기준 정렬
         return backup.getStartedAt().toString(); // startedAt은 null 값 안 들어옴
     }
-    
-  // 예외 메시지가 너무 길 경우 DB 저장 시 에러가 날 수 있어 안전하게 요약
-  private String summarizeException(Exception e) {
-    String message = e.getMessage();
-    if (message == null) {
-      return "Unknown Error occurred during backup.";
-    }
-    // 보통 DB의 String/Varchar 컬럼 크기인 255자를 기준으로 안전하게 200자 내외로 자름
-    return message.length() > 200 ? message.substring(0, 200) + "..." : message;
   }
 }
