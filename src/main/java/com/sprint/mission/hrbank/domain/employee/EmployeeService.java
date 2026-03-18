@@ -116,7 +116,7 @@ public class EmployeeService {
     Employee employee = new Employee(
         req.name(),
         req.email(),
-        department.get(),
+        department,
         req.position(),
         req.hireDate(),
         file
