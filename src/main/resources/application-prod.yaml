@@ -1,8 +1,9 @@
 spring:
   application:
     name: hrbank
-  profiles:
-    active: prod # 배포 환경 프로필 # FIXME: 배포 환경 프로필 설정값 변경하고 배포 필요
+  config:
+    activate:
+      on-profile: prod # 배포 환경 프로필 # FIXME: 배포 환경 프로필 설정값 변경하고 배포 필요
   datasource:
     driver-class-name: org.postgresql.Driver
     # .env에 민감 정보 저장

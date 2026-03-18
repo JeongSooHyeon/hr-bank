@@ -101,3 +101,6 @@ $RECYCLE.BIN/
 # schema 파일
 src/main/resources/schema-generated.sql
 src/main/resources/schema-drop-generated.sql
+
+# 로그 파일 제외
+*.hrbank
