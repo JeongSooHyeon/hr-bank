@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: hrbank
+  profiles:
+    active: prod # 배포 환경 프로필
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    # .env에 민감 정보 저장
+    # IntelliJ 플러그인 사용해 값 연동 -> EnvFile
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      # create - 시작 시 drop + create
+      ddl-auto: none # Hiberante 기본 DDL 기능 끄기
+    properties:
+      hibernate:
+        format_sql: true # 로그에 출력되는 SQL 포맷팅
+        use_sql_comments: true # 로그 주석 추가
+      # open-in-view: false # OSIV 비활성화
+
+      # 애플리케이션이 실행될 때 생성되는 SQL 쿼리 파일로 저장
+      jakarta:
+        persistence:
+          schema-generation:
+            database:
+              action: drop-and-create # 시작 시 드랍 후 생성
+            scripts:
+              action: drop-and-create # 생성 스크립트 작성
+              create-target: ./src/main/resources/schema-generated.sql # CREATE하는 SQL 저장 경로
+              drop-target: ./src/main/resources/schema-drop-generated.sql # DROP하는 SQL 저장 경로
+
+logging:
+  level:
+    org.hibernate.SQL: debug # 실행되는 SQL 문장 로그로 출력
+    org.hibernate.orm.jdbc.bind: trace # 바인딩 파라미터 값을 로그로 출력
+
+hrbank:
+  storage:
+    local:
+      root-path: .hrbank/storage
+      # @Value("${hrbank.storage.local.root-path}") 를 통해서 할당됨
+  backup:
+    # 1시간(3600000ms)마다 실행
+    interval-ms: 3600000
+
+    # 백업 시점에 저장된 파일들을 500개씩 나누어서 백업
+    batch-size: 500
