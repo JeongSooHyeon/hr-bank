@@ -6,8 +6,8 @@ spring:
     # .env에 민감 정보 저장
     # IntelliJ 플러그인 사용해 값 연동 -> EnvFile
     url: ${DB_URL}
-    username: ${DB_USERNAME:default_user}
-    password: ${DB_PASSWORD:default_password}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       # create - 시작 시 drop + create
