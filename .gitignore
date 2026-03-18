@@ -94,3 +94,13 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# .env 파일 (보안상 제외)
+*.env
+
+# schema 파일
+src/main/resources/schema-generated.sql
+src/main/resources/schema-drop-generated.sql
+
+# 로그 파일 제외
+*.hrbank

@@ -1,15 +1,16 @@
 spring:
   application:
     name: hrbank
-  profiles:
-    active: dev
+  config:
+    activate:
+      on-profile: prod # 배포 환경 프로필 # FIXME: 배포 환경 프로필 설정값 변경하고 배포 필요
   datasource:
     driver-class-name: org.postgresql.Driver
     # .env에 민감 정보 저장
     # IntelliJ 플러그인 사용해 값 연동 -> EnvFile
     url: ${DB_URL}
-    username: ${DB_USERNAME:default_user}
-    password: ${DB_PASSWORD:default_user}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       # create - 시작 시 drop + create
@@ -18,7 +19,7 @@ spring:
       hibernate:
         format_sql: true # 로그에 출력되는 SQL 포맷팅
         use_sql_comments: true # 로그 주석 추가
-    # open-in-view: false # OSIV 비활성화
+      # open-in-view: false # OSIV 비활성화
 
 logging:
   level:
