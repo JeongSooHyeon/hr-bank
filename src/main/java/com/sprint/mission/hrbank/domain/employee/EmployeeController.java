@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -105,7 +106,7 @@ public class EmployeeController {
   // 직원 생성 엔드포인트
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<EmployeeDto> createEmployee(
-      @RequestPart EmployeeCreateRequest req,
+      @Valid @RequestPart EmployeeCreateRequest req,
       @RequestPart(required = false) MultipartFile profile,
       HttpServletRequest request) {
     String clientIp = IpUtil.getClientIp(request);
