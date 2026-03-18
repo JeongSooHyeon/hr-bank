@@ -16,8 +16,9 @@ public interface BackupRepository extends JpaRepository<Backup, Long> {
   @Query("SELECT b FROM Backup b "
       + "WHERE (:idAfter IS NULL OR b.id < :idAfter) " // 커서 기반 페이징 (내림차순)
       + "AND (:worker IS NULL OR b.worker LIKE %:worker%) " // worker (부분일치)
-      + "AND (:startedAtFrom IS NULL OR b.startedAt >= :startedAtFrom) " // startedAt* (범위조건)
-      + "AND (:startedAtTo IS NULL OR b.startedAt <= :startedAtTo) "
+      + "AND (CAST(:startedAtFrom AS timestamp) IS NULL OR b.startedAt >= :startedAtFrom) "
+      // startedAt* (범위조건)
+      + "AND (CAST(:startedAtTo AS timestamp) IS NULL OR b.startedAt <= :startedAtTo) "
       + "AND (:status IS NULL OR b.status = :status)" // status (완전일치)
   )
   Slice<Backup> searchBackupsDesc(
@@ -32,8 +33,8 @@ public interface BackupRepository extends JpaRepository<Backup, Long> {
   @Query("SELECT b FROM Backup b "
       + "WHERE (:idAfter IS NULL OR b.id > :idAfter) " // 커시 기반 페이징 (오름차순)
       + "AND (:worker IS NULL OR b.worker LIKE %:worker%) "
-      + "AND (:startedAtFrom IS NULL OR b.startedAt >= :startedAtFrom) "
-      + "AND (:startedAtTo IS NULL OR b.startedAt <= :startedAtTo) "
+      + "AND (CAST(:startedAtFrom AS timestamp) IS NULL OR b.startedAt >= :startedAtFrom) "
+      + "AND (CAST(:startedAtTo AS timestamp) IS NULL OR b.startedAt <= :startedAtTo) "
       + "AND (:status IS NULL OR b.status = :status)")
   Slice<Backup> searchBackupsAsc(
       @Param("worker") String worker,
@@ -48,8 +49,8 @@ public interface BackupRepository extends JpaRepository<Backup, Long> {
   // TODO: 프론트 -> "총 xx건" 으로 수정 필요
   @Query("SELECT COUNT(b) FROM Backup b " // 검색 결과의 총 개수 가져옴
       + "WHERE (:worker IS NULL OR b.worker LIKE %:worker%) "
-      + "AND (:startedAtFrom IS NULL OR b.startedAt >= :startedAtFrom) "
-      + "AND (:startedAtTo IS NULL OR b.startedAt <= :startedAtTo) "
+      + "AND (CAST(:startedAtFrom AS timestamp) IS NULL OR b.startedAt >= :startedAtFrom) "
+      + "AND (CAST(:startedAtTo AS timestamp) IS NULL OR b.startedAt <= :startedAtTo) "
       + "AND (:status IS NULL OR b.status = :status)"
   )
   long countByConditions(
