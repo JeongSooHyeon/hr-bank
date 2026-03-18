@@ -6,8 +6,8 @@ spring:
     # .env에 민감 정보 저장
     # IntelliJ 플러그인 사용해 값 연동 -> EnvFile
     url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${DB_USERNAME:default_user}
+    password: ${DB_PASSWORD:default_user}
   jpa:
     hibernate:
       # create - 시작 시 drop + create
@@ -17,17 +17,6 @@ spring:
         format_sql: true # 로그에 출력되는 SQL 포맷팅
         use_sql_comments: true # 로그 주석 추가
       # open-in-view: false # OSIV 비활성화
-
-      # 애플리케이션이 실행될 때 생성되는 SQL 쿼리 파일로 저장
-      jakarta:
-        persistence:
-          schema-generation:
-            database:
-              action: drop-and-create # 시작 시 드랍 후 생성
-            scripts:
-              action: drop-and-create # 생성 스크립트 작성
-              create-target: ./src/main/resources/schema-generated.sql # CREATE하는 SQL 저장 경로
-              drop-target: ./src/main/resources/schema-drop-generated.sql # DROP하는 SQL 저장 경로
 
 logging:
   level:
