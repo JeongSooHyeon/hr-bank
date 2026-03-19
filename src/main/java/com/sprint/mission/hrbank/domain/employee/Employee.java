@@ -47,7 +47,6 @@ public class Employee extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
   private EmployeeStatus status;
 
   @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
