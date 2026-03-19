@@ -19,7 +19,7 @@ spring:
       hibernate:
         format_sql: false # 로그에 출력되는 SQL 포맷팅
         use_sql_comments: false # 로그 주석 추가
-      open-in-view: false # OSIV 비활성화
+    open-in-view: false # OSIV 비활성화
 
 logging:
   level:
