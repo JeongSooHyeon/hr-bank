@@ -97,7 +97,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # .env 파일 (보안상 제외)
-*.env
+*.env.*
+!.env.example
 
 # schema 파일
 src/main/resources/schema-generated.sql
