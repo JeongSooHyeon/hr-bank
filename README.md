@@ -1,218 +1,120 @@
-# HR Bank
+# HR Bank — 직원 정보 관리 시스템
 
-(팀 협업 문서 링크 게시)
+> 기업의 직원 정보를 관리하는 Open EMS (Employee Management System)
 
----
-
-# 팀원 구성
-
-김성경 ([개인 Github 링크](https://github.com/conradrado))  
-박나경 ([개인 Github 링크](https://github.com/parkngg))  
-최현호 ([개인 Github 링크](https://github.com/CHH01))  
-정수현 ([개인 Github 링크](https://github.com/JeongSooHyeon))  
-조성진 ([개인 Github 링크](https://github.com/Amperisk9))  
-박승민 ([개인 Github 링크](https://github.com/raonPsm))
----
-
-# 프로젝트 소개
-
-**HR Bank**
-
-Batch 기반 데이터 관리 기능을 포함한 **Open EMS (Employee Management System)** 입니다.  
-기업의 직원 정보를 관리하고 직원 데이터 변경 이력 및 데이터 백업을 자동화하는 인사 관리 시스템입니다.
-
-프로젝트 기간: 2026.03.10 ~ 2026.03.20
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://www.java.com)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-blue)](https://www.postgresql.org)
 
 ---
 
-# 기술 스택
+## 📌 프로젝트 소개
 
-### Backend
+6인 팀 프로젝트로, 도메인 단위로 역할을 분담하여 개발했습니다.  
+본인 담당: **직원 수정 이력 관리 도메인 전체**
 
-- Java
-- Spring Boot
-- Spring Data JPA
-
-### Database
-
-- PostgreSQL
-- H2 (Local Development)
-
-### Library
-
-- MapStruct
-- Spring Scheduler
-- SpringDoc OpenAPI (Swagger)
-
-### Infrastructure
-
-- Railway
-
-### 협업 Tool
-
-- Git & Github
-- Discord
+### 주요 기능
+- 직원 등록 / 수정 / 삭제
+- 부서 관리
+- 파일 관리
+- **직원 수정 이력 관리** ← 본인 담당
+- 데이터 백업
+- 대시보드
 
 ---
 
-# 팀원별 구현 기능 상세
+## 🙋 본인 담당 역할
 
-## 김성경
-
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
-
-### 직원 관리 API
-
-직원 정보를 생성, 수정, 삭제하는 API 구현
-
-- 직원 등록 API
-- 직원 수정 API
-- 직원 삭제 API
-- 직원 상세 조회 API
-
-### 직원 검색 API
-
-다양한 조건 기반 직원 검색 기능 구현
-
-검색 조건
-
-- 이름
-- 이메일
-- 부서
-- 직함
-- 사원번호
-- 입사일 범위
-- 상태
-
-Cursor 기반 페이지네이션 적용
+- `CHANGE_LOGS`, `CHANGE_LOG_DIFFS` 테이블 설계 및 JPA 엔티티 구현
+- 직원 추가/수정/삭제 시 이력 자동 저장 서비스 로직 구현
+- 수정된 속성만 필터링하여 변경 전/후 값을 저장하는 diff 로직 구현
+- 커서 기반 페이지네이션 + 동적 검색 조건을 지원하는 목록 조회 API 구현
+- 이력 상세 조회 및 건수 조회 API 구현
+- MapStruct 기반 Mapper 구현
+- Swagger API 문서화
+- 클라이언트 IP 주소 추출 유틸 구현
+- 네이밍 컨벤션 · Git 브랜치 전략 Notion 문서화 주도
 
 ---
 
-## 박승민
+## 🛠 기술 스택
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
-
-### 부서 관리 API
-
-부서 관리 기능 구현
-
-- 부서 등록 API
-- 부서 수정 API
-- 부서 삭제 API
-- 부서 목록 조회 API
-
-부서 이름 중복 검증 로직 구현
+| 분류 | 기술 |
+|------|------|
+| Language | Java 17 |
+| Framework | Spring Boot, Spring Data JPA |
+| Database | PostgreSQL |
+| Mapping | MapStruct |
+| API 문서 | Swagger |
+| 협업 | Git / GitHub, Notion |
 
 ---
 
-## 박나경
+## 💡 핵심 기술 의사결정
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+### 1. Snapshot 방식 도입
 
-### 파일 관리 시스템
+**문제 상황**  
+이력 상세 조회 시 `Employee` 엔티티에서 `employeeName`, `profileImageId`를 실시간으로 참조하는 방식으로 처음 구현했습니다. 그런데 직원이 삭제된 경우 해당 엔티티를 찾지 못해 오류가 발생하는 문제가 있었습니다.
 
-파일 메타데이터와 실제 파일을 분리 저장
+**해결**  
+`ChangeLog` 엔티티에 `employeeNameSnapshot`, `profileImageIdSnapshot` 필드를 추가해 이력 저장 시점의 데이터를 함께 저장하는 **Snapshot 방식**으로 변경했습니다.
 
-메타 정보
-
-- 파일명
-- 파일 형식
-- 파일 크기
-
-저장 구조
-
+**결과**  
+직원 삭제 후에도 이력 상세 조회가 정상적으로 동작합니다.
 
 ---
 
-## 최현호
+### 2. 커서 기반 페이지네이션 적용
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+**이유**  
+offset 방식은 페이지가 깊어질수록 앞 데이터를 전부 스캔해야 해 데이터가 많아질수록 성능이 저하됩니다. ID 기반 커서 방식은 마지막으로 조회한 ID 이후부터 읽기 때문에 데이터 양과 무관하게 일정한 성능을 유지합니다.
 
-### 파일 관리 시스템
-
-파일 메타데이터와 실제 파일을 분리 저장
-
-메타 정보
-
-- 파일명
-- 파일 형식
-- 파일 크기
-
-저장 구조
+**구현**  
+`Slice`를 활용해 전체 카운트 쿼리 없이 `hasNext`를 처리하고, `totalElements`는 별도 count 쿼리로 분리했습니다.
 
 ---
 
-## 정수
+### 3. PostgreSQL CAST로 null 파라미터 타입 오류 해결
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+**문제 상황**  
+`Instant` 타입 파라미터가 `null`로 넘어올 때 PostgreSQL이 타입을 추론하지 못해  
+`could not determine data type of parameter $11` 오류가 발생했습니다.
 
-### 파일 관리 시스템
-
-파일 메타데이터와 실제 파일을 분리 저장
-
-메타 정보
-
-- 파일명
-- 파일 형식
-- 파일 크기
-
-저장 구조
-
-# 파일 구조
-
-src
-┣ main
-┃ ┣ java
-┃ ┃ ┣ com
-┃ ┃ ┃ ┣ hrbank
-┃ ┃ ┃ ┃ ┣ controller
-┃ ┃ ┃ ┃ ┃ ┣ EmployeeController.java
-┃ ┃ ┃ ┃ ┃ ┣ DepartmentController.java
-┃ ┃ ┃ ┃ ┃ ┗ BackupController.java
-┃ ┃ ┃ ┃ ┣ service
-┃ ┃ ┃ ┃ ┣ repository
-┃ ┃ ┃ ┃ ┣ entity
-┃ ┃ ┃ ┃ ┣ dto
-┃ ┃ ┃ ┃ ┗ config
-┃ ┣ resources
-┃ ┃ ┣ application.yml
-┃ ┃ ┗ static
-┗ test
-
+**해결**  
+JPQL 쿼리에서 `CAST(:atFrom AS timestamp)`로 타입을 명시적으로 지정해 해결했습니다.
 
 ---
 
-# API 문서
+## 📁 담당 도메인 패키지 구조
 
-Swagger UI
-
-/swagger-ui/index.html
-
-
----
-
-# 구현 시스템
-
-(프로젝트 실행 화면 또는 데모 링크)
-
----
-
-# 프로젝트 회고록
-
-(프로젝트 발표 자료 또는 회고 링크)
-
-프로젝트를 통해 다음을 학습했습니다.
-
-- Spring Boot 기반 REST API 설계
-- JPA 기반 데이터 관리
-- Cursor 기반 페이지네이션
-- 파일 관리 시스템 구현
-- Batch 기반 데이터 백업 시스템 설계
-- 협업 기반 Git Workflow
+```
+src/main/java/
+└── domain/
+    └── changelog/
+        ├── controller/   # ChangeLogController
+        ├── service/      # ChangeLogService
+        ├── repository/   # ChangeLogRepository
+        ├── entity/       # ChangeLog, ChangeLogDiff
+        ├── dto/          # Request / Response DTO
+        ├── mapper/       # MapStruct Mapper
+        └── util/         # IpAddressExtractor
+```
 
 ---
 
-# Author
+## 🔧 향후 개선 사항
 
-Backend Developer  
-김성경
+- **복합 커서 도입**: 현재 ID 단일 커서 방식은 `ipAddress` 정렬 시 동일 값이 여러 개일 경우 페이지네이션이 불안정할 수 있음. 정렬 필드 + ID를 조합한 복합 커서로 개선 예정
+- **QueryDSL 전환**: 현재 JPQL로 구현된 동적 쿼리를 QueryDSL로 전환하면 컴파일 타임 오류 감지 및 가독성 향상 가능
+
+---
+
+## 👥 팀 구성
+
+| 역할 | 인원 |
+|------|------|
+| 백엔드 개발 | 6명 |
+| 본인 기여도 | 약 20% (이력 관리 도메인 단독 담당) |
+
+> 팀 레포지토리: [github.com/sb10-part2-team2](https://github.com/sb10-part2-team2/sb10-part2-team2)
